@@ -1,0 +1,92 @@
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+<div id="piano">
+  <div class="keys beats">
+    <div data-key="67" class="key beat">BEAT 1</div>
+    <div data-key="86" class="key beat">BEAT 2</div>
+    <div data-key="66" class="key beat">BEAT 3</div>
+    <div data-key="78" class="key beat">BEAT 4</div>
+  </div>
+</div>  
+
+  <audio data-key="67" class="beat beat-audio" src="~/sounds/b-1.wav"></audio>
+  <audio data-key="86" class="beat beat-audio" src="~/sounds/b-2.wav"></audio>
+  <audio data-key="66" class="beat beat-audio" src="~/sounds/b-3.wav"></audio>
+  <audio data-key="78" class="beat beat-audio" src="~/sounds/b-4.wav"></audio>
+</body>
+
+<script type="text/javascript">
+
+  function addListenerMulti(elem, eNames, listener){
+  var events = eNames.split(' ');
+  for(var i = 0; i<events.length; i++){
+  elem.addEventListener(events[i],listener,false);
+    }
+}
+
+
+  function playSound(e) {
+    
+    if (e.type == 'click'){
+      keyCode = e.target.attributes[0].value;
+    }else if (e.type == 'touchstart'){
+      keyCode = e.target.attributes[0].value;
+    }else if(e.type == 'keydown'){
+      keyCode = e.keyCode
+    }
+    else return
+
+    const audio = document.querySelector('audio[data-key="'+keyCode+'"]');
+    const key = document.querySelector('div[data-key="'+keyCode+'"]');
+    if (!audio) return;
+
+    src = audio.src
+function getData() {
+  source = audioCtx.createBufferSource();
+  request = new XMLHttpRequest();
+
+  request.open('GET', src, true);
+
+  request.responseType = 'arraybuffer';
+
+  request.onload = function() {
+    var audioData = request.response;
+
+    audioCtx.decodeAudioData(audioData, function(buffer) {
+        myBuffer = buffer;
+        source.buffer = myBuffer;
+        source.playbackRate.value = playbackControl.value;
+        source.connect(audioCtx.destination);
+        source.loop = true;
+      },
+
+      function(e){"Error with decoding audio data" + e.err});
+
+  }
+
+  request.send();
+}
+
+// wire up buttons to stop and play audio, and range slider control
+
+play.onclick = function() {
+  getData();
+  source.start(0);
+  play.setAttribute('disabled', 'disabled');
+  playbackControl.removeAttribute('disabled');
+}
+
+const keys = Array.from(document.querySelectorAll('.key'));
+  keys.forEach(key => key.addEventListener('transitionend', removeTransition));
+  addListenerMulti(window, 'click keydown touchstart', playSound);
+
+
+
+
+
+</script>
+
+</html>
